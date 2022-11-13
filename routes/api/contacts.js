@@ -4,9 +4,10 @@ const router = express.Router();
 const {
   listContacts,
   getContactById,
-  removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
+  removeContact,
 } = require("../../models/contacts");
 
 router.get("/", async (req, res, next) => {
@@ -24,13 +25,18 @@ router.post("/", async (req, res, next) => {
   res.json({ ...newContact });
 });
 
-router.delete("/:contactId", async (req, res, next) => {
-  const response = await removeContact(req.params.contactId);
+router.put("/:contactId", async (req, res, next) => {
+  const response = await updateContact(req.params.contactId, req.body);
   res.json({ ...response });
 });
 
-router.put("/:contactId", async (req, res, next) => {
-  const response = await updateContact(req.params.contactId, req.body);
+router.patch("/:contactId/favorite", async (req, res, next) => {
+  const response = await updateStatusContact(req.params.contactId, req.body);
+  res.json({ ...response });
+});
+
+router.delete("/:contactId", async (req, res, next) => {
+  const response = await removeContact(req.params.contactId);
   res.json({ ...response });
 });
 
