@@ -13,14 +13,14 @@ const apiAddContact = (body) => {
 };
 
 const apiUpdateContact = (contactId, body) => {
-  return Contacts.findByIdAndUpdate({ _id: contactId }, body, { new: true });
+  return Contacts.findByIdAndUpdate(contactId, body, { new: true });
 };
 const apiUpdateStatusContact = (contactId, body) => {
-  return Contacts.findByIdAndUpdate({ _id: contactId }, body);
+  return Contacts.findByIdAndUpdate(contactId, body);
 };
 
 const apiRemoveContact = (contactId) => {
-  return Contacts.findByIdAndRemove({ _id: contactId });
+  return Contacts.findByIdAndRemove(contactId);
 };
 
 module.exports = {
