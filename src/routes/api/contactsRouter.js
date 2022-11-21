@@ -1,6 +1,6 @@
 const express = require("express");
 
-const router = express.Router();
+const contactsRouter = express.Router();
 const {
   listContacts,
   getContactById,
@@ -8,36 +8,36 @@ const {
   updateContact,
   updateStatusContact,
   removeContact,
-} = require("../../models/contacts");
+} = require("../../models/contactsController");
 
-router.get("/", async (req, res, next) => {
+contactsRouter.get("/", async (req, res, next) => {
   const contacts = await listContacts();
   res.json({ ...contacts });
 });
 
-router.get("/:contactId", async (req, res, next) => {
+contactsRouter.get("/:contactId", async (req, res, next) => {
   const contactToFind = await getContactById(req.params.contactId);
   res.json({ ...contactToFind });
 });
 
-router.post("/", async (req, res, next) => {
+contactsRouter.post("/", async (req, res, next) => {
   const newContact = await addContact(req.body);
   res.json({ ...newContact });
 });
 
-router.put("/:contactId", async (req, res, next) => {
+contactsRouter.put("/:contactId", async (req, res, next) => {
   const response = await updateContact(req.params.contactId, req.body);
   res.json({ ...response });
 });
 
-router.patch("/:contactId/favorite", async (req, res, next) => {
+contactsRouter.patch("/:contactId/favorite", async (req, res, next) => {
   const response = await updateStatusContact(req.params.contactId, req.body);
   res.json({ ...response });
 });
 
-router.delete("/:contactId", async (req, res, next) => {
+contactsRouter.delete("/:contactId", async (req, res, next) => {
   const response = await removeContact(req.params.contactId);
   res.json({ ...response });
 });
 
-module.exports = router;
+module.exports = contactsRouter;

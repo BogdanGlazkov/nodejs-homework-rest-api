@@ -6,17 +6,14 @@ const {
   apiUpdateContact,
   apiUpdateStatusContact,
   apiRemoveContact,
-} = require("../services/apiService");
+} = require("../services/contactsService");
 
 const schema = Joi.object({
   name: Joi.string().min(2).max(40).required(),
   email: Joi.string().email({
     minDomainSegments: 2,
   }),
-  phone: Joi.string()
-    .min(7)
-    .max(20)
-    .pattern(/^[0-9]+$/),
+  phone: Joi.string().min(7).max(20),
 });
 
 const listContacts = async () => {

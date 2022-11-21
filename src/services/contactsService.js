@@ -1,4 +1,4 @@
-const Contacts = require("./schema");
+const Contacts = require("../schemas/contactsSchema");
 
 const apiListContacts = () => {
   return Contacts.find();
