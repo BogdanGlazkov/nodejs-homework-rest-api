@@ -1,8 +1,11 @@
+const jwt = require("jsonwebtoken");
+// const passport = require("passport");
+const secret = process.env.SECRET;
 const User = require("../schemas/usersSchema");
 
 const apiFindUserByEmail = async (email) => {
-  const userExist = await User.findOne({ email });
-  return userExist;
+  const user = await User.findOne({ email });
+  return user;
 };
 
 const apiRegisterNewUser = async (body) => {
@@ -13,13 +16,23 @@ const apiRegisterNewUser = async (body) => {
   return { email, subscription: newUser.subscription };
 };
 
-const apiLoginUser = (body) => {
-  // const { email, password } = body;
-  // return Contacts.findByIdAndRemove(contactId);
+const apiLoginUser = async (body) => {
+  const token = jwt.sign(body, secret, { expiresIn: "2h" });
+  return token;
+};
+
+const apiValidatePassword = async (email, password) => {
+  const user = await apiFindUserByEmail(email);
+  if (!user) {
+    return null;
+  }
+  const isPasswordValid = await user.validPassword(password);
+  return isPasswordValid;
 };
 
 module.exports = {
   apiFindUserByEmail,
   apiRegisterNewUser,
   apiLoginUser,
+  apiValidatePassword,
 };
