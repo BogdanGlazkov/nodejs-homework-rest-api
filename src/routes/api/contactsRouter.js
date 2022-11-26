@@ -1,6 +1,7 @@
 const express = require("express");
 
 const contactsRouter = express.Router();
+const { authMiddleware } = require("../../middlewares/authMiddleware");
 const {
   listContacts,
   getContactById,
@@ -9,6 +10,8 @@ const {
   updateStatusContact,
   removeContact,
 } = require("../../models/contactsController");
+
+contactsRouter.use(authMiddleware);
 
 contactsRouter.get("/", async (req, res, next) => {
   const contacts = await listContacts();

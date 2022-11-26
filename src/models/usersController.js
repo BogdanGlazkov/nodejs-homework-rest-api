@@ -4,12 +4,17 @@ const {
   apiRegisterNewUser,
   apiLoginUser,
   apiValidatePassword,
+  apiUpdateUser,
+  apiLogoutUser,
+  apiGetCurrentUser,
 } = require("../services/usersService");
 
 const schema = Joi.object({
-  email: Joi.string().email({
-    minDomainSegments: 2,
-  }),
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+    })
+    .required(),
   password: Joi.string().min(6).max(30).required(),
 });
 
@@ -60,18 +65,39 @@ const loginUser = async (body) => {
     }
 
     const token = await apiLoginUser(body);
+    const updatedUser = await apiUpdateUser(user._id, token);
     return {
       status: "OK",
       code: "200",
       token,
-      user: { email, subscription: user.subscription },
+      user: { email, subscription: updatedUser.subscription },
     };
   } catch (error) {
     return { status: "Bad Request", code: "400", message: error.message };
   }
 };
 
+const logoutUser = async (userId) => {
+  try {
+    await apiLogoutUser(userId);
+    return { status: "No content", code: "204" };
+  } catch (error) {
+    return { status: "Unauthorized", code: "401", message: "Not authorized" };
+  }
+};
+
+const getCurrentUser = async (userId) => {
+  try {
+    const currentUser = await apiGetCurrentUser(userId);
+    return { status: "OK", code: "200", currentUser };
+  } catch (error) {
+    return { status: "Unauthorized", code: "401", message: "Not authorized" };
+  }
+};
+
 module.exports = {
   registerNewUser,
   loginUser,
+  logoutUser,
+  getCurrentUser,
 };

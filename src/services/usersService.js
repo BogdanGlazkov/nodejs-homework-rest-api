@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-// const passport = require("passport");
 const secret = process.env.SECRET;
 const User = require("../schemas/usersSchema");
 
@@ -30,9 +29,38 @@ const apiValidatePassword = async (email, password) => {
   return isPasswordValid;
 };
 
+const apiUpdateUser = async (id, token) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    id,
+    { $set: { token } },
+    { returnDocument: "after" }
+  );
+  return updatedUser;
+};
+
+const apiLogoutUser = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    return null;
+  }
+  await User.findByIdAndUpdate(userId, { $set: { token: null } });
+};
+
+const apiGetCurrentUser = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    return null;
+  }
+  const { email, subscription } = user;
+  return { email, subscription };
+};
+
 module.exports = {
   apiFindUserByEmail,
   apiRegisterNewUser,
   apiLoginUser,
   apiValidatePassword,
+  apiUpdateUser,
+  apiLogoutUser,
+  apiGetCurrentUser,
 };
