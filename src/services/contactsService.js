@@ -14,7 +14,7 @@ const apiListContacts = async (owner, { page, limit, favorite }) => {
 
 const apiGetContactById = async (contactId, owner) => {
   const contact = await Contacts.findById(contactId);
-  if (contact.owner.toString() !== owner) {
+  if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
   return contact;
@@ -27,7 +27,7 @@ const apiAddContact = async (body, owner) => {
 
 const apiUpdateContact = async (contactId, body, owner) => {
   const contact = await Contacts.findById(contactId);
-  if (contact.owner.toString() !== owner) {
+  if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
   return Contacts.findByIdAndUpdate(contactId, body, { new: true });
@@ -35,15 +35,16 @@ const apiUpdateContact = async (contactId, body, owner) => {
 
 const apiUpdateStatusContact = async (contactId, body, owner) => {
   const contact = await Contacts.findById(contactId);
-  if (contact.owner.toString() !== owner) {
+  if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
-  return Contacts.findByIdAndUpdate(contactId, body);
+  const updatedContact = await Contacts.findByIdAndUpdate(contactId, body);
+  return updatedContact;
 };
 
 const apiRemoveContact = async (contactId, owner) => {
   const contact = await Contacts.findById(contactId);
-  if (contact.owner.toString() !== owner) {
+  if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
   return Contacts.findByIdAndRemove(contactId);

@@ -1,12 +1,13 @@
 const Joi = require("joi");
 const {
-  apiFindUserByEmail,
-  apiRegisterNewUser,
-  apiLoginUser,
-  apiValidatePassword,
-  apiUpdateUser,
-  apiLogoutUser,
-  apiGetCurrentUser,
+  dbFindUserByEmail,
+  dbRegisterNewUser,
+  dbLoginUser,
+  dbValidatePassword,
+  dbUpdateUser,
+  dbLogoutUser,
+  dbGetCurrentUser,
+  dbUpdateSubscription,
 } = require("../services/usersService");
 
 const schema = Joi.object({
@@ -18,24 +19,28 @@ const schema = Joi.object({
   password: Joi.string().min(6).max(30).required(),
 });
 
+const schemaSubscription = Joi.object({
+  subscription: Joi.string().valid("starter", "pro", "business").required(),
+});
+
 const registerNewUser = async (body) => {
   try {
     const { email } = body;
-    const userExists = await apiFindUserByEmail(email);
+    const userExists = await dbFindUserByEmail(email);
     if (userExists) {
       return {
         status: "Conflict",
-        code: "209",
+        code: "409",
         message: "Email in use",
       };
     }
 
     const validationResult = schema.validate(body);
     if (validationResult.error) {
-      throw new Error(validationResult.error);
+      throw new Error(validationResult.error.message);
     }
 
-    const newUser = await apiRegisterNewUser(body);
+    const newUser = await dbRegisterNewUser(body);
     return {
       status: "Created",
       code: "201",
@@ -50,12 +55,12 @@ const loginUser = async (body) => {
   try {
     const validationResult = schema.validate(body);
     if (validationResult.error) {
-      throw new Error(validationResult.error);
+      throw new Error(validationResult.error.message);
     }
 
     const { email, password } = body;
-    const user = await apiFindUserByEmail(email);
-    const isPasswordValid = await apiValidatePassword(email, password);
+    const user = await dbFindUserByEmail(email);
+    const isPasswordValid = await dbValidatePassword(email, password);
     if (!user || !isPasswordValid) {
       return {
         status: "Unauthorized",
@@ -64,8 +69,8 @@ const loginUser = async (body) => {
       };
     }
 
-    const token = await apiLoginUser(body);
-    const updatedUser = await apiUpdateUser(user._id, token);
+    const token = await dbLoginUser(body);
+    const updatedUser = await dbUpdateUser(user._id, token);
     return {
       status: "OK",
       code: "200",
@@ -79,7 +84,7 @@ const loginUser = async (body) => {
 
 const logoutUser = async (userId) => {
   try {
-    await apiLogoutUser(userId);
+    await dbLogoutUser(userId);
     return { status: "No content", code: "204" };
   } catch (error) {
     return { status: "Unauthorized", code: "401", message: "Not authorized" };
@@ -88,8 +93,26 @@ const logoutUser = async (userId) => {
 
 const getCurrentUser = async (userId) => {
   try {
-    const currentUser = await apiGetCurrentUser(userId);
+    const currentUser = await dbGetCurrentUser(userId);
     return { status: "OK", code: "200", currentUser };
+  } catch (error) {
+    return { status: "Unauthorized", code: "401", message: "Not authorized" };
+  }
+};
+
+const updateSubscription = async (userId, subscription) => {
+  try {
+    const validationResult = schemaSubscription.validate(subscription);
+    if (validationResult.error) {
+      return {
+        status: "Bad Request",
+        code: "400",
+        message: validationResult.error.message,
+      };
+    }
+
+    const user = await dbUpdateSubscription(userId, subscription);
+    return { status: "OK", code: "200", user };
   } catch (error) {
     return { status: "Unauthorized", code: "401", message: "Not authorized" };
   }
@@ -100,4 +123,5 @@ module.exports = {
   loginUser,
   logoutUser,
   getCurrentUser,
+  updateSubscription,
 };

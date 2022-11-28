@@ -84,13 +84,9 @@ const updateStatusContact = async (contactId, body, owner) => {
     if (!Object.keys(body).length) {
       throw new Error("Missing field favorite");
     }
-    const statusContactToUpdate = await apiUpdateStatusContact(
-      contactId,
-      body,
-      owner
-    );
+    const contact = await apiUpdateStatusContact(contactId, body, owner);
 
-    if (!statusContactToUpdate) {
+    if (!contact) {
       return { status: "ERROR", code: "404", message: "Not found" };
     }
     const updatedContact = await apiGetContactById(contactId);
