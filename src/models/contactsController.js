@@ -89,7 +89,7 @@ const updateStatusContact = async (contactId, body, owner) => {
     if (!contact) {
       return { status: "ERROR", code: "404", message: "Not found" };
     }
-    const updatedContact = await apiGetContactById(contactId);
+    const updatedContact = await apiGetContactById(contactId, owner);
     return { status: "OK", code: "200", data: updatedContact };
   } catch (error) {
     return { status: "ERROR", code: "400", message: error.message };
