@@ -6,31 +6,31 @@ const {
   apiUpdateContact,
   apiUpdateStatusContact,
   apiRemoveContact,
-} = require("../services/apiService");
+} = require("../services/contactsService");
 
 const schema = Joi.object({
   name: Joi.string().min(2).max(40).required(),
   email: Joi.string().email({
     minDomainSegments: 2,
   }),
-  phone: Joi.string()
-    .min(7)
-    .max(20)
-    .pattern(/^[0-9]+$/),
+  phone: Joi.string().min(7).max(20),
 });
 
-const listContacts = async () => {
+const listContacts = async (req) => {
   try {
-    const contactList = await apiListContacts();
-    return { status: "OK", code: "200", data: contactList };
+    let { page = 1, limit = 20, favorite = false } = req.query;
+    limit = parseInt(limit) > 20 ? 20 : limit;
+    const { _id: owner } = req.user;
+    const contactList = await apiListContacts(owner, { page, limit, favorite });
+    return { status: "OK", code: "200", data: contactList, page, limit };
   } catch (error) {
     return { status: "ERROR", response: error.message };
   }
 };
 
-const getContactById = async (contactId) => {
+const getContactById = async (contactId, owner) => {
   try {
-    const contact = await apiGetContactById(contactId);
+    const contact = await apiGetContactById(contactId, owner);
     if (!contact) {
       throw new Error("Not found");
     }
@@ -40,7 +40,7 @@ const getContactById = async (contactId) => {
   }
 };
 
-const addContact = async (body) => {
+const addContact = async (body, owner) => {
   try {
     const { email, phone } = body;
 
@@ -53,14 +53,14 @@ const addContact = async (body) => {
       throw new Error(validationResult.error);
     }
 
-    const newContact = await apiAddContact(body);
+    const newContact = await apiAddContact(body, owner);
     return { status: "created", code: "201", data: newContact };
   } catch (error) {
     return { status: "ERROR", code: "400", message: error.message };
   }
 };
 
-const updateContact = async (contactId, body) => {
+const updateContact = async (contactId, body, owner) => {
   try {
     if (!Object.keys(body).length) {
       throw new Error("Missing fields");
@@ -69,7 +69,7 @@ const updateContact = async (contactId, body) => {
     if (validationResult.error) {
       throw new Error(validationResult.error);
     }
-    const contactToUpdate = await apiUpdateContact(contactId, body);
+    const contactToUpdate = await apiUpdateContact(contactId, body, owner);
     if (!contactToUpdate) {
       return { status: "ERROR", code: "404", message: "Not found" };
     }
@@ -79,26 +79,26 @@ const updateContact = async (contactId, body) => {
   }
 };
 
-const updateStatusContact = async (contactId, body) => {
+const updateStatusContact = async (contactId, body, owner) => {
   try {
     if (!Object.keys(body).length) {
       throw new Error("Missing field favorite");
     }
-    const statusContactToUpdate = await apiUpdateStatusContact(contactId, body);
+    const contact = await apiUpdateStatusContact(contactId, body, owner);
 
-    if (!statusContactToUpdate) {
+    if (!contact) {
       return { status: "ERROR", code: "404", message: "Not found" };
     }
-    const updatedContact = await apiGetContactById(contactId);
+    const updatedContact = await apiGetContactById(contactId, owner);
     return { status: "OK", code: "200", data: updatedContact };
   } catch (error) {
     return { status: "ERROR", code: "400", message: error.message };
   }
 };
 
-const removeContact = async (contactId) => {
+const removeContact = async (contactId, owner) => {
   try {
-    await apiRemoveContact(contactId);
+    await apiRemoveContact(contactId, owner);
     return { status: "OK", code: "200", message: "Contact deleted" };
   } catch (error) {
     return { status: "ERROR", code: "404", message: "Not found" };
