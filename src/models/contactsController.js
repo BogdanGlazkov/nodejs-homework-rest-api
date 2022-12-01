@@ -24,7 +24,7 @@ const listContacts = async (req) => {
     const contactList = await apiListContacts(owner, { page, limit, favorite });
     return { status: "OK", code: "200", data: contactList, page, limit };
   } catch (error) {
-    return { status: "ERROR", response: error.message };
+    return { status: "ERROR", code: "400", message: "Bad request" };
   }
 };
 
@@ -56,7 +56,7 @@ const addContact = async (body, owner) => {
     const newContact = await apiAddContact(body, owner);
     return { status: "created", code: "201", data: newContact };
   } catch (error) {
-    return { status: "ERROR", code: "400", message: error.message };
+    return { status: "ERROR", code: "400", message: "Bad request" };
   }
 };
 
@@ -75,7 +75,7 @@ const updateContact = async (contactId, body, owner) => {
     }
     return { status: "OK", code: "200", data: contactToUpdate };
   } catch (error) {
-    return { status: "ERROR", code: "400", message: error.message };
+    return { status: "ERROR", code: "400", message: "Bad request" };
   }
 };
 
@@ -92,7 +92,7 @@ const updateStatusContact = async (contactId, body, owner) => {
     const updatedContact = await apiGetContactById(contactId, owner);
     return { status: "OK", code: "200", data: updatedContact };
   } catch (error) {
-    return { status: "ERROR", code: "400", message: error.message };
+    return { status: "ERROR", code: "400", message: "Bad request" };
   }
 };
 

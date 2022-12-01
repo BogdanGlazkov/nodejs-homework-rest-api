@@ -30,7 +30,9 @@ const apiUpdateContact = async (contactId, body, owner) => {
   if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
-  return Contacts.findByIdAndUpdate(contactId, body, { new: true });
+  return Contacts.findOneAndUpdate({ _id: contactId, owner }, body, {
+    new: true,
+  });
 };
 
 const apiUpdateStatusContact = async (contactId, body, owner) => {
@@ -38,7 +40,10 @@ const apiUpdateStatusContact = async (contactId, body, owner) => {
   if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
-  const updatedContact = await Contacts.findByIdAndUpdate(contactId, body);
+  const updatedContact = await Contacts.findOneAndUpdate(
+    { _id: contactId, owner },
+    body
+  );
   return updatedContact;
 };
 
