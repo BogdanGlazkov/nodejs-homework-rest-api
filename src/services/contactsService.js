@@ -5,7 +5,7 @@ const apiListContacts = async (owner, { page, limit, favorite }) => {
   const contacts = await Contacts.find({ owner })
     .select({ owner: 0 })
     .skip(skip)
-    .limit(parseInt(limit));
+    .limit(limit);
   if (favorite) {
     return contacts.filter((contact) => Boolean(contact.favorite));
   }
@@ -47,7 +47,7 @@ const apiRemoveContact = async (contactId, owner) => {
   if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
-  return Contacts.findByIdAndRemove(contactId);
+  return Contacts.findOneAndDelete({ _id: contactId, owner });
 };
 
 module.exports = {

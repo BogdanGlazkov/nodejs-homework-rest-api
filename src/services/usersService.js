@@ -46,15 +46,6 @@ const dbLogoutUser = async (userId) => {
   await User.findByIdAndUpdate(userId, { $set: { token: null } });
 };
 
-const dbGetCurrentUser = async (userId) => {
-  const user = await User.findById(userId);
-  if (!user) {
-    return null;
-  }
-  const { email, subscription } = user;
-  return { email, subscription };
-};
-
 const dbUpdateSubscription = async (userId, body) => {
   const user = await User.findByIdAndUpdate(userId, body);
   if (!user) {
@@ -72,6 +63,5 @@ module.exports = {
   dbValidatePassword,
   dbUpdateUser,
   dbLogoutUser,
-  dbGetCurrentUser,
   dbUpdateSubscription,
 };

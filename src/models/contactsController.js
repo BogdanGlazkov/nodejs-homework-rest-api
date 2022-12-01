@@ -36,7 +36,7 @@ const getContactById = async (contactId, owner) => {
     }
     return { status: "success", code: "200", data: contact };
   } catch (error) {
-    return { status: "ERROR", code: "404", message: error.message };
+    return { status: "ERROR", code: "404", message: "Not found" };
   }
 };
 

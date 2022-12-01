@@ -6,7 +6,6 @@ const {
   dbValidatePassword,
   dbUpdateUser,
   dbLogoutUser,
-  dbGetCurrentUser,
   dbUpdateSubscription,
 } = require("../services/usersService");
 
@@ -91,15 +90,6 @@ const logoutUser = async (userId) => {
   }
 };
 
-const getCurrentUser = async (userId) => {
-  try {
-    const currentUser = await dbGetCurrentUser(userId);
-    return { status: "OK", code: "200", currentUser };
-  } catch (error) {
-    return { status: "Unauthorized", code: "401", message: "Not authorized" };
-  }
-};
-
 const updateSubscription = async (userId, subscription) => {
   try {
     const validationResult = schemaSubscription.validate(subscription);
@@ -122,6 +112,5 @@ module.exports = {
   registerNewUser,
   loginUser,
   logoutUser,
-  getCurrentUser,
   updateSubscription,
 };

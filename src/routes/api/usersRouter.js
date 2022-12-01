@@ -5,7 +5,6 @@ const {
   registerNewUser,
   loginUser,
   logoutUser,
-  getCurrentUser,
   updateSubscription,
 } = require("../../models/usersController");
 const { authMiddleware } = require("../../middlewares/authMiddleware");
@@ -27,9 +26,9 @@ usersRouter.post("/logout", authMiddleware, async (req, res, next) => {
 });
 
 usersRouter.post("/current", authMiddleware, async (req, res, next) => {
-  const { _id: userId } = req.user;
-  const response = await getCurrentUser(userId);
-  res.json(response);
+  res.json({
+    data: { email: req.user.email, subscription: req.user.subscription },
+  });
 });
 
 usersRouter.patch("/", authMiddleware, async (req, res, next) => {
