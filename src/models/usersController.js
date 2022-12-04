@@ -7,6 +7,7 @@ const {
   dbUpdateUser,
   dbLogoutUser,
   dbUpdateSubscription,
+  dbAvatarUpload,
 } = require("../services/usersService");
 
 const schema = Joi.object({
@@ -108,9 +109,19 @@ const updateSubscription = async (userId, subscription) => {
   }
 };
 
+const avatarUpload = async (avatarUrl, userId) => {
+  try {
+    const response = await dbAvatarUpload(avatarUrl, userId);
+    return { status: "OK", code: "200", response };
+  } catch (error) {
+    return { status: "Unauthorized", code: "401", message: "Not authorized" };
+  }
+};
+
 module.exports = {
   registerNewUser,
   loginUser,
   logoutUser,
   updateSubscription,
+  avatarUpload,
 };
