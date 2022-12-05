@@ -25,9 +25,9 @@ const pathCombine = (name) => {
 };
 
 const deleteOldAvatar = async (user) => {
-  if (!user.avatarURL) return null;
-  if (user.avatarURL.slice(0, 18) === "//www.gravatar.com") return null;
-  const newPath = "public" + user.avatarURL.slice(24);
+  if (!user.avatarUrl) return null;
+  if (user.avatarUrl.slice(0, 18) === "//www.gravatar.com") return null;
+  const newPath = "public" + user.avatarUrl.slice(24);
   await fs.unlink(`${newPath}`, (error) => {
     if (error) throw new Error();
   });
