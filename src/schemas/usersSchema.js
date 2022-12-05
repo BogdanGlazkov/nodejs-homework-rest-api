@@ -19,6 +19,7 @@ const user = new Schema(
       default: "starter",
     },
     token: String,
+    avatarUrl: String,
   },
   { versionKey: false, timestamps: true }
 );

@@ -5,7 +5,7 @@ const apiListContacts = async (owner, { page, limit, favorite }) => {
   const contacts = await Contacts.find({ owner })
     .select({ owner: 0 })
     .skip(skip)
-    .limit(parseInt(limit));
+    .limit(limit);
   if (favorite) {
     return contacts.filter((contact) => Boolean(contact.favorite));
   }
@@ -30,7 +30,9 @@ const apiUpdateContact = async (contactId, body, owner) => {
   if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
-  return Contacts.findByIdAndUpdate(contactId, body, { new: true });
+  return Contacts.findOneAndUpdate({ _id: contactId, owner }, body, {
+    new: true,
+  });
 };
 
 const apiUpdateStatusContact = async (contactId, body, owner) => {
@@ -38,7 +40,10 @@ const apiUpdateStatusContact = async (contactId, body, owner) => {
   if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
-  const updatedContact = await Contacts.findByIdAndUpdate(contactId, body);
+  const updatedContact = await Contacts.findOneAndUpdate(
+    { _id: contactId, owner },
+    body
+  );
   return updatedContact;
 };
 
@@ -47,7 +52,7 @@ const apiRemoveContact = async (contactId, owner) => {
   if (contact.owner.toString() !== owner.toString()) {
     return null;
   }
-  return Contacts.findByIdAndRemove(contactId);
+  return Contacts.findOneAndDelete({ _id: contactId, owner });
 };
 
 module.exports = {
