@@ -12,7 +12,7 @@ describe("Login test", () => {
         password: "qwertyui",
       },
     };
-    const token = jwt.sign(mReq.body, process.env.SECRET);
+    const token = jwt.sign(mReq.body, process.env.SECRET, { expiresIn: "2h" });
     const hashPassword = await bCrypt.hashSync(
       mReq.body.password,
       bCrypt.genSaltSync(6)
@@ -23,26 +23,22 @@ describe("Login test", () => {
       password: hashPassword,
       subscription: "starter",
     };
-    const mRes = {
-      status: "OK",
-      code: "200",
-      token,
-      user: { email: user.email, subscription: user.subscription },
-    };
 
-    jest.spyOn(User, "findOne").mockImplementationOnce(async () => mReq);
+    jest.spyOn(User, "findOne").mockImplementation(async () => user);
     jest
       .spyOn(User, "findByIdAndUpdate")
-      .mockImplementationOnce(async () => user._id, token);
+      .mockImplementationOnce(async () => user);
 
-    expect(mRes.status).toEqual("OK");
-    expect(mRes.code).toEqual("200");
-    expect(mRes.token).toEqual(token);
-    expect(mRes.user.email).toEqual(user.email);
-    expect(mRes.user.subscription).toEqual(user.subscription);
+    const response = await loginUser(mReq.body);
+
+    expect(response.status).toEqual("OK");
+    expect(response.code).toEqual("200");
+    expect(response.token).toEqual(token);
+    expect(response.user.email).toEqual(user.email);
+    expect(response.user.subscription).toEqual(user.subscription);
   });
 
-  it("Should return validation result error", async () => {
+  it("Should return validation fields error", async () => {
     const mReq = {
       email: "",
       password: "",
@@ -54,14 +50,44 @@ describe("Login test", () => {
     expect(response.message).toBeDefined();
   });
 
-  it("Should return error when email or password is wrong", async () => {
+  it("Should return error when email is wrong", async () => {
     const mReq = {
       email: "1test@gmail.com",
-      password: "qwerty",
+      password: "qwertyui",
     };
 
-    jest.spyOn(User, "findOne").mockImplementationOnce(async () => {});
+    jest.spyOn(User, "findOne").mockImplementation(async () => {});
     const response = await loginUser(mReq);
+
+    expect(response.status).toEqual("Unauthorized");
+    expect(response.code).toEqual("401");
+    expect(response.message).toEqual("Email or password is wrong");
+  });
+
+  it("Should return error when password is wrong", async () => {
+    const mReq = {
+      email: "test@gmail.com",
+      password: "qwertyui",
+    };
+    const wrongPassword = "qwerty";
+
+    const hashPassword = await bCrypt.hashSync(
+      mReq.password,
+      bCrypt.genSaltSync(6)
+    );
+    const user = {
+      _id: "1",
+      email: mReq.email,
+      password: hashPassword,
+      subscription: "starter",
+    };
+
+    jest.spyOn(User, "findOne").mockImplementation(async () => user);
+    jest
+      .spyOn(User, "findByIdAndUpdate")
+      .mockImplementationOnce(async () => user);
+
+    const response = await loginUser({ ...mReq, password: wrongPassword });
 
     expect(response.status).toEqual("Unauthorized");
     expect(response.code).toEqual("401");
