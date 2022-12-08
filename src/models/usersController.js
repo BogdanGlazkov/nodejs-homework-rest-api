@@ -9,6 +9,7 @@ const {
   dbUpdateSubscription,
   dbAvatarUpload,
   dbVerifyNewUser,
+  dbExtraVerifyNewUser,
 } = require("../services/usersService");
 
 const schema = Joi.object({
@@ -31,7 +32,7 @@ const registerNewUser = async (body) => {
     if (userExists) {
       return {
         status: "Conflict",
-        code: "409",
+        code: 409,
         message: "Email in use",
       };
     }
@@ -44,11 +45,11 @@ const registerNewUser = async (body) => {
     const newUser = await dbRegisterNewUser(body);
     return {
       status: "Created",
-      code: "201",
+      code: 201,
       user: newUser,
     };
   } catch (error) {
-    return { status: "Bad Request", code: "400", message: error.message };
+    return { status: "Bad Request", code: 400, message: error.message };
   }
 };
 
@@ -65,7 +66,7 @@ const loginUser = async (body) => {
     if (!user || !isPasswordValid) {
       return {
         status: "Unauthorized",
-        code: "401",
+        code: 401,
         message: "Email or password is wrong",
       };
     }
@@ -74,21 +75,21 @@ const loginUser = async (body) => {
     const updatedUser = await dbUpdateUser(user._id, token);
     return {
       status: "OK",
-      code: "200",
+      code: 200,
       token,
       user: { email, subscription: updatedUser.subscription },
     };
   } catch (error) {
-    return { status: "Bad Request", code: "400", message: error.message };
+    return { status: "Bad Request", code: 400, message: error.message };
   }
 };
 
 const logoutUser = async (userId) => {
   try {
     await dbLogoutUser(userId);
-    return { status: "No content", code: "204" };
+    return { status: "No content", code: 204 };
   } catch (error) {
-    return { status: "Unauthorized", code: "401", message: "Not authorized" };
+    return { status: "Unauthorized", code: 401, message: "Not authorized" };
   }
 };
 
@@ -98,24 +99,24 @@ const updateSubscription = async (userId, subscription) => {
     if (validationResult.error) {
       return {
         status: "Bad Request",
-        code: "400",
+        code: 400,
         message: validationResult.error.message,
       };
     }
 
     const user = await dbUpdateSubscription(userId, subscription);
-    return { status: "OK", code: "200", user };
+    return { status: "OK", code: 200, user };
   } catch (error) {
-    return { status: "Unauthorized", code: "401", message: "Not authorized" };
+    return { status: "Unauthorized", code: 401, message: "Not authorized" };
   }
 };
 
 const avatarUpload = async (avatarUrl, userId) => {
   try {
     const response = await dbAvatarUpload(avatarUrl, userId);
-    return { status: "OK", code: "200", response };
+    return { status: "OK", code: 200, response };
   } catch (error) {
-    return { status: "Unauthorized", code: "401", message: "Not authorized" };
+    return { status: "Unauthorized", code: 401, message: "Not authorized" };
   }
 };
 
@@ -125,9 +126,33 @@ const verifyNewUser = async (verificationToken) => {
     if (!response) {
       throw new Error();
     }
-    return { status: "OK", code: "200", message: "Verification successful" };
+    return { status: "OK", code: 200, message: "Verification successful" };
   } catch (error) {
-    return { status: "Not found", code: "404", message: "User not found" };
+    return { status: "Not found", code: 404, message: "User not found" };
+  }
+};
+
+const extraVerifyNewUser = async (email) => {
+  try {
+    if (!email) {
+      throw new Error("Missing requered field email");
+    }
+
+    const user = await dbExtraVerifyNewUser(email);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    if (user.verify === true) {
+      throw new Error("Verification has already been passed");
+    }
+
+    return { status: "OK", code: 200, message: "Verification email sent" };
+  } catch (error) {
+    return {
+      status: "Bad Request",
+      code: 400,
+      message: error.message,
+    };
   }
 };
 
@@ -138,4 +163,5 @@ module.exports = {
   updateSubscription,
   avatarUpload,
   verifyNewUser,
+  extraVerifyNewUser,
 };

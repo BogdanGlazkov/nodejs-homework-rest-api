@@ -9,6 +9,7 @@ const {
   updateSubscription,
   avatarUpload,
   verifyNewUser,
+  extraVerifyNewUser,
 } = require("../../models/usersController");
 const { authMiddleware } = require("../../middlewares/authMiddleware");
 const { imageHandler } = require("../../middlewares/filesMiddleware");
@@ -72,6 +73,12 @@ usersRouter.patch(
 usersRouter.get("/verify/:verificationToken", async (req, res, next) => {
   const { verificationToken } = req.params;
   const response = await verifyNewUser(verificationToken);
+  res.json(response);
+});
+
+usersRouter.post("/verify", async (req, res, next) => {
+  const { email } = req.body;
+  const response = await extraVerifyNewUser(email);
   res.json(response);
 });
 

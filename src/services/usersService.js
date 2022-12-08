@@ -7,6 +7,9 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const secret = process.env.SECRET;
+const sender = process.env.SEND_EMAIL;
+const host = process.env.API_HOST;
+
 const User = require("../schemas/usersSchema");
 const { deleteOldAvatar } = require("../middlewares/filesMiddleware");
 
@@ -19,11 +22,9 @@ const dbRegisterNewUser = async (body) => {
   const { email, password, subscription } = body;
   const avatarUrl = gravatar.url(email);
   const verificationToken = uuidv4();
-  const sender = process.env.SEND_EMAIL;
-  const host = process.env.API_HOST;
 
   const msg = {
-    to: sender,
+    to: email,
     from: sender,
     subject: "Thank you for registration!",
     text: `Please confirm your email address ${host}/users/verify/${verificationToken}`,
@@ -108,6 +109,24 @@ const dbVerifyNewUser = async (verificationToken) => {
   return user;
 };
 
+const dbExtraVerifyNewUser = async (email) => {
+  const user = await User.findOne({ email });
+  if (user && user.verify === false) {
+    const msg = {
+      to: email,
+      from: sender,
+      subject: "Thank you for registration!",
+      text: `Please confirm your email address ${host}/users/verify/${user.verificationToken}`,
+      html: `<h2>Please, <a href="${host}/users/verify/${user.verificationToken}">confirm</a> your email address</h2>`,
+    };
+    await sgMail
+      .send(msg)
+      .then(() => console.log("Email sent"))
+      .catch((error) => console.error(error.message));
+  }
+  return user;
+};
+
 module.exports = {
   dbFindUserByEmail,
   dbRegisterNewUser,
@@ -118,4 +137,5 @@ module.exports = {
   dbUpdateSubscription,
   dbAvatarUpload,
   dbVerifyNewUser,
+  dbExtraVerifyNewUser,
 };
