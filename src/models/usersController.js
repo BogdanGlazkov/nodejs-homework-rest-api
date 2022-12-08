@@ -8,6 +8,7 @@ const {
   dbLogoutUser,
   dbUpdateSubscription,
   dbAvatarUpload,
+  dbVerifyNewUser,
 } = require("../services/usersService");
 
 const schema = Joi.object({
@@ -118,10 +119,23 @@ const avatarUpload = async (avatarUrl, userId) => {
   }
 };
 
+const verifyNewUser = async (verificationToken) => {
+  try {
+    const response = await dbVerifyNewUser(verificationToken);
+    if (!response) {
+      throw new Error();
+    }
+    return { status: "OK", code: "200", message: "Verification successful" };
+  } catch (error) {
+    return { status: "Not found", code: "404", message: "User not found" };
+  }
+};
+
 module.exports = {
   registerNewUser,
   loginUser,
   logoutUser,
   updateSubscription,
   avatarUpload,
+  verifyNewUser,
 };
