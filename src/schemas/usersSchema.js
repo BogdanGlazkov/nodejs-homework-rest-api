@@ -20,16 +20,20 @@ const user = new Schema(
     },
     token: String,
     avatarUrl: String,
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, "Verify token is required"],
+    },
   },
   { versionKey: false, timestamps: true }
 );
 
 user.methods.setPassword = function (password) {
   this.password = bCrypt.hashSync(password, bCrypt.genSaltSync(6));
-};
-
-user.methods.validPassword = function (password) {
-  return bCrypt.compareSync(password, this.password);
 };
 
 const User = mongoose.model("user", user);

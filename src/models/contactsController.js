@@ -22,9 +22,9 @@ const listContacts = async (req) => {
     limit = parseInt(limit) > 20 ? 20 : limit;
     const { _id: owner } = req.user;
     const contactList = await apiListContacts(owner, { page, limit, favorite });
-    return { status: "OK", code: "200", data: contactList, page, limit };
+    return { status: "OK", code: 200, data: contactList, page, limit };
   } catch (error) {
-    return { status: "ERROR", code: "400", message: "Bad request" };
+    return { status: "ERROR", code: 400, message: "Bad request" };
   }
 };
 
@@ -34,9 +34,9 @@ const getContactById = async (contactId, owner) => {
     if (!contact) {
       throw new Error("Not found");
     }
-    return { status: "success", code: "200", data: contact };
+    return { status: "Success", code: 200, data: contact };
   } catch (error) {
-    return { status: "ERROR", code: "404", message: "Not found" };
+    return { status: "ERROR", code: 404, message: "Not found" };
   }
 };
 
@@ -54,9 +54,9 @@ const addContact = async (body, owner) => {
     }
 
     const newContact = await apiAddContact(body, owner);
-    return { status: "created", code: "201", data: newContact };
+    return { status: "Created", code: 201, data: newContact };
   } catch (error) {
-    return { status: "ERROR", code: "400", message: "Bad request" };
+    return { status: "ERROR", code: 400, message: "Bad request" };
   }
 };
 
@@ -71,11 +71,11 @@ const updateContact = async (contactId, body, owner) => {
     }
     const contactToUpdate = await apiUpdateContact(contactId, body, owner);
     if (!contactToUpdate) {
-      return { status: "ERROR", code: "404", message: "Not found" };
+      return { status: "ERROR", code: 404, message: "Not found" };
     }
-    return { status: "OK", code: "200", data: contactToUpdate };
+    return { status: "OK", code: 200, data: contactToUpdate };
   } catch (error) {
-    return { status: "ERROR", code: "400", message: "Bad request" };
+    return { status: "ERROR", code: 400, message: "Bad request" };
   }
 };
 
@@ -87,21 +87,21 @@ const updateStatusContact = async (contactId, body, owner) => {
     const contact = await apiUpdateStatusContact(contactId, body, owner);
 
     if (!contact) {
-      return { status: "ERROR", code: "404", message: "Not found" };
+      return { status: "ERROR", code: 404, message: "Not found" };
     }
     const updatedContact = await apiGetContactById(contactId, owner);
-    return { status: "OK", code: "200", data: updatedContact };
+    return { status: "OK", code: 200, data: updatedContact };
   } catch (error) {
-    return { status: "ERROR", code: "400", message: "Bad request" };
+    return { status: "ERROR", code: 400, message: "Bad request" };
   }
 };
 
 const removeContact = async (contactId, owner) => {
   try {
     await apiRemoveContact(contactId, owner);
-    return { status: "OK", code: "200", message: "Contact deleted" };
+    return { status: "OK", code: 200, message: "Contact deleted" };
   } catch (error) {
-    return { status: "ERROR", code: "404", message: "Not found" };
+    return { status: "ERROR", code: 404, message: "Not found" };
   }
 };
 
